@@ -1,0 +1,407 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cash Larp</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#000;color:#fff;font-family:Arial,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:22px 20px}
+.logo{font-size:25px;font-weight:800;letter-spacing:-1px}
+.logo span{color:#00df75}
+.tag{font-size:10px;color:#00df75;border:1px solid #00df75;padding:6px 8px;border-radius:20px}
+main{max-width:480px;margin:auto;padding:8px 20px 100px}
+h1{font-size:15px;font-weight:500;color:#aaa;margin:24px 0 8px}
+.balance{font-size:52px;font-weight:700;letter-spacing:-2px;margin:0 0 24px;overflow-wrap:anywhere}
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:32px}
+.action{text-align:center;font-size:12px;color:#ddd}
+.circle{height:58px;width:58px;border-radius:50%;background:#00df75;color:#000;display:grid;place-items:center;font-size:25px;font-weight:bold;margin:0 auto 9px;border:0;cursor:pointer}
+.circle.dark{background:#252525;color:white}
+.panel{margin:20px 0}
+.panelhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+h2{font-size:20px;margin:0}
+.smallbtn{background:#242424;color:white;border:0;border-radius:20px;padding:9px 13px;cursor:pointer}
+input{width:100%;padding:14px;background:#171717;color:white;border:1px solid #333;border-radius:12px;margin:7px 0 13px;font-size:15px}
+label{font-size:13px;color:#aaa}
+.primary{width:100%;border:0;background:#00df75;color:#000;padding:15px;border-radius:30px;font-weight:bold;font-size:15px;cursor:pointer}
+.secondary{width:100%;border:1px solid #444;background:#151515;color:#fff;padding:14px;border-radius:30px;cursor:pointer}
+.card{padding:23px;border-radius:22px;min-height:175px;background:linear-gradient(135deg,#163e2c,#080d0a 75%);border:1px solid #335844;display:flex;flex-direction:column;justify-content:space-between}
+.cardtop,.cardbottom{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cardname{font-size:21px;font-weight:bold}
+.cardnumber{font-size:19px;letter-spacing:2px}
+.muted{font-size:11px;color:#b6c5bb}
+.activity{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid #222}
+.avatar{width:45px;height:45px;border-radius:50%;display:grid;place-items:center;background:#292929;font-weight:bold;font-size:18px;flex-shrink:0}
+.details{flex:1;min-width:0}
+.sender{font-weight:bold;font-size:14px;overflow-wrap:anywhere}
+.note{color:#999;font-size:12px;margin-top:5px}
+.amount{font-weight:bold;color:#00df75;white-space:nowrap}
+.empty{color:#888;font-size:13px;padding:20px 0}
+.section{display:none}
+.section.active{display:block}
+nav{position:fixed;bottom:0;left:0;right:0;background:#101010;border-top:1px solid #262626;display:flex;justify-content:space-around;padding:12px 4px max(12px,env(safe-area-inset-bottom));z-index:5}
+nav button{border:0;background:none;color:#999;font-size:11px;cursor:pointer;min-width:50px}
+nav button span{display:block;font-size:22px;margin-bottom:5px}
+nav button.active{color:#00df75}
+.notice{font-size:11px;color:#aaa;line-height:1.5;margin:20px 0;text-align:center}
+.toast{position:fixed;bottom:85px;left:5%;width:90%;max-width:440px;background:#222;border:1px solid #00df75;border-radius:14px;padding:16px;z-index:9}
+[hidden]{display:none!important}
+.editable-item{cursor:text}
+.editable-item:focus{outline:2px dashed #00df75;outline-offset:4px}
+.edit-hint{font-size:11px;color:#00df75;text-align:center}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="logo">Cash <span>Larp</span></div>
+  <div class="tag">DEMO MODE</div>
+</header>
+
+<main>
+  <section id="home" class="section active">
+    <h1>Demo balance</h1>
+    <div class="balance" id="balance">$250.00</div>
+
+    <div class="actions">
+      <div class="action"><button class="circle" onclick="go('pay')">↗</button>Pay</div>
+      <div class="action"><button class="circle" onclick="go('request')">↓</button>Request</div>
+      <div class="action"><button class="circle dark" onclick="go('cards')">▣</button>Card</div>
+      <div class="action"><button class="circle dark" onclick="go('settings')">•••</button>More</div>
+    </div>
+
+    <div class="panel">
+      <div class="panelhead">
+        <h2>Activity</h2>
+        <button class="smallbtn" onclick="go('activity')">View all</button>
+      </div>
+      <div id="homeActivity" class="empty">Your demo activity will appear here.</div>
+    </div>
+
+    <div class="notice">Cash Larp is an unofficial simulation. All payments and balances are fictional.</div>
+    <div class="edit-hint">Double-click or double-tap text to customize it.</div>
+  </section>
+
+  <section id="pay" class="section">
+    <h2>Simulate a payment</h2>
+    <p class="muted">Create a fictional transaction.</p>
+    <label>Display name</label>
+    <input id="payName" maxlength="30" placeholder="Example: Alex">
+    <label>Amount ($)</label>
+    <input id="payAmount" type="number" min=".01" max="999999999" step=".01" placeholder="25.00">
+    <label>Note</label>
+    <input id="payNote" maxlength="60" placeholder="For lunch">
+    <button class="primary" onclick="addPayment()">Create demo payment</button>
+  </section>
+
+  <section id="request" class="section">
+    <h2>Demo request</h2>
+    <p class="muted">This pretend request will not contact anyone.</p>
+    <label>Display name</label>
+    <input id="requestName" maxlength="30" placeholder="Example: Jordan">
+    <label>Amount ($)</label>
+    <input id="requestAmount" type="number" min=".01" max="999999999" step=".01" placeholder="10.00">
+    <button class="primary" onclick="makeRequest()">Create fake request</button>
+  </section>
+
+  <section id="cards" class="section">
+    <h2>My demo card</h2>
+    <p class="muted">Customize a fictional card. Never enter real card details.</p>
+
+    <div class="card" style="margin:20px 0">
+      <div class="cardtop">
+        <div class="cardname">Cash Larp</div>
+        <div class="muted">DEMO CARD</div>
+      </div>
+      <div class="cardnumber" id="cardNumber">•••• •••• •••• 1234</div>
+      <div class="cardbottom">
+        <div><div class="muted">CARDHOLDER</div><strong id="cardHolder">DEMO USER</strong></div>
+        <div class="muted">NOT REAL</div>
+      </div>
+    </div>
+
+    <label>Cardholder display name</label>
+    <input id="holderInput" maxlength="30" placeholder="Demo User">
+    <label>Fictional last four digits</label>
+    <input id="digitsInput" inputmode="numeric" maxlength="4" placeholder="1234">
+    <button class="primary" onclick="saveCard()">Save demo card</button>
+  </section>
+
+  <section id="activity" class="section">
+    <div class="panelhead">
+      <h2>Activity</h2>
+      <button class="smallbtn" onclick="clearActivity()">Clear</button>
+    </div>
+    <div id="allActivity" class="empty">No demo transactions yet.</div>
+  </section>
+
+  <section id="settings" class="section">
+    <h2>Settings</h2>
+    <p class="muted">Edit your simulated balance.</p>
+    <label>New demo balance ($)</label>
+    <input id="newBalance" type="number" min="0" max="999999999" step=".01" value="250">
+    <button class="primary" onclick="changeBalance()">Update balance</button>
+    <div style="height:15px"></div>
+    <button class="secondary" onclick="resetDemo()">Reset demo</button>
+    <div style="height:25px"></div>
+    <button class="secondary" onclick="toggleEditMode()">Toggle edit mode</button>
+    <p class="muted">Edit mode lets you customize visible text and colors. Some edited text may reset when activity refreshes.</p>
+  </section>
+</main>
+
+<nav>
+  <button class="active" data-page="home" onclick="go('home')"><span>⌂</span>Home</button>
+  <button data-page="activity" onclick="go('activity')"><span>↻</span>Activity</button>
+  <button data-page="pay" onclick="go('pay')"><span>↗</span>Pay</button>
+  <button data-page="cards" onclick="go('cards')"><span>▣</span>Card</button>
+  <button data-page="settings" onclick="go('settings')"><span>⚙</span>Settings</button>
+</nav>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+let balance = 250;
+let transactions = [];
+let editMode = true;
+
+function money(n) {
+  return n.toLocaleString("en-US", {
+    style:"currency",
+    currency:"USD"
+  });
+}
+
+function go(page) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(page).classList.add("active");
+
+  document.querySelectorAll("nav button").forEach(b => {
+    b.classList.toggle("active", b.dataset.page === page);
+  });
+
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function renderBalance() {
+  document.getElementById("balance").textContent = money(balance);
+}
+
+function notify(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = "DEMO · " + message;
+  toast.hidden = false;
+  clearTimeout(notify.timer);
+  notify.timer = setTimeout(() => toast.hidden = true, 3500);
+}
+
+function addPayment() {
+  const name = document.getElementById("payName").value.trim();
+  const field = document.getElementById("payAmount");
+  const amount = Number(field.value);
+  const note = document.getElementById("payNote").value.trim() || "Demo payment";
+
+  if (!name || !field.value || !Number.isFinite(amount) || amount <= 0 || amount > 999999999) {
+    notify("Enter a name and a valid amount.");
+    return;
+  }
+
+  const rounded = Math.round(amount * 100) / 100;
+  balance = Math.round((balance + rounded) * 100) / 100;
+
+  transactions.unshift({
+    name,
+    amount:rounded,
+    note,
+    time:new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})
+  });
+
+  renderBalance();
+  renderActivity();
+  field.value = "";
+  document.getElementById("payNote").value = "";
+  notify("Pretend payment from " + name + " for " + money(rounded));
+  go("home");
+}
+
+function makeRequest() {
+  const name = document.getElementById("requestName").value.trim();
+  const field = document.getElementById("requestAmount");
+  const amount = Number(field.value);
+
+  if (!name || !field.value || !Number.isFinite(amount) || amount <= 0 || amount > 999999999) {
+    notify("Enter a name and a valid request amount.");
+    return;
+  }
+
+  transactions.unshift({
+    name,
+    amount:0,
+    requested:Math.round(amount * 100) / 100,
+    note:"Demo request · Not sent",
+    time:new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})
+  });
+
+  renderActivity();
+  notify("Pretend request created. Nobody was contacted.");
+  go("activity");
+}
+
+function renderActivity() {
+  for (const id of ["homeActivity","allActivity"]) {
+    const container = document.getElementById(id);
+    container.replaceChildren();
+
+    if (!transactions.length) {
+      container.className = "empty";
+      container.textContent = "No demo transactions yet.";
+      continue;
+    }
+
+    container.className = "";
+
+    transactions.slice(0, id === "homeActivity" ? 4 : 100).forEach(t => {
+      const row = document.createElement("div");
+      row.className = "activity";
+
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = t.name.charAt(0).toUpperCase();
+
+      const details = document.createElement("div");
+      details.className = "details";
+
+      const sender = document.createElement("div");
+      sender.className = "sender";
+      sender.textContent = t.name;
+
+      const note = document.createElement("div");
+      note.className = "note";
+      note.textContent = t.note + " · " + t.time;
+
+      const amount = document.createElement("div");
+      amount.className = "amount";
+      amount.textContent = t.requested
+        ? "Request " + money(t.requested)
+        : "+" + money(t.amount);
+
+      details.append(sender,note);
+      row.append(avatar,details,amount);
+      container.appendChild(row);
+    });
+  }
+}
+
+function changeBalance() {
+  const field = document.getElementById("newBalance");
+  const n = Number(field.value);
+
+  if (!field.value || !Number.isFinite(n) || n < 0 || n > 999999999) {
+    notify("Enter a valid demo balance.");
+    return;
+  }
+
+  balance = Math.round(n * 100) / 100;
+  renderBalance();
+  notify("Demo balance updated.");
+}
+
+function saveCard() {
+  const name = document.getElementById("holderInput").value.trim() || "DEMO USER";
+  const digits = document.getElementById("digitsInput").value.trim() || "1234";
+
+  if (!/^\d{4}$/.test(digits)) {
+    notify("Use exactly four fictional digits.");
+    return;
+  }
+
+  document.getElementById("cardHolder").textContent = name.toUpperCase();
+  document.getElementById("cardNumber").textContent = "•••• •••• •••• " + digits;
+  notify("Demo card updated.");
+}
+
+function clearActivity() {
+  transactions = [];
+  renderActivity();
+  notify("Demo activity cleared.");
+}
+
+function resetDemo() {
+  balance = 250;
+  transactions = [];
+  document.getElementById("newBalance").value = "250";
+  renderBalance();
+  renderActivity();
+  notify("Demo reset.");
+}
+
+function toggleEditMode() {
+  editMode = !editMode;
+  notify(editMode ? "Text editing enabled." : "Text editing disabled.");
+}
+
+/* Double-click and double-tap text editing */
+let lastTapTime = 0;
+let lastTapTarget = null;
+
+const editableSelectors = [
+  "h1","h2","p",".logo",".tag",".balance",".action",
+  ".sender",".note",".amount",".cardname",".cardnumber",
+  ".muted",".notice",".empty","label","footer"
+].join(",");
+
+function editText(target) {
+  if (!editMode || !target || target.closest("nav")) return;
+
+  const oldText = target.innerText;
+  const newText = prompt("Edit text (Cash Larp demo):", oldText);
+
+  if (newText !== null && newText.trim() !== "") {
+    target.innerText = newText;
+  }
+}
+
+document.addEventListener("dblclick", event => {
+  if (event.target.closest("button,input")) return;
+
+  const target = event.target.closest(editableSelectors);
+  if (target) {
+    event.preventDefault();
+    editText(target);
+    return;
+  }
+
+  const block = event.target.closest(".panel,.card,header");
+  if (editMode && block) {
+    const color = prompt("Enter a CSS background color:", block.style.backgroundColor || "#171717");
+    if (color && CSS.supports("background-color", color)) {
+      block.style.background = color;
+    }
+  }
+});
+
+document.addEventListener("touchend", event => {
+  const target = event.target.closest(editableSelectors);
+  if (!target || target.closest("nav") || event.target.closest("button,input")) return;
+
+  const now = Date.now();
+
+  if (target === lastTapTarget && now - lastTapTime < 450) {
+    event.preventDefault();
+    editText(target);
+    lastTapTime = 0;
+    lastTapTarget = null;
+  } else {
+    lastTapTime = now;
+    lastTapTarget = target;
+  }
+}, {passive:false});
+
+renderBalance();
+renderActivity();
+</script>
+</body>
+</html>
+
