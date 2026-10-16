@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cash Larp</title>
+<title>Cash App</title>
 
 <style>
 *{box-sizing:border-box}
@@ -58,12 +58,9 @@ nav button.active{color:#00df75}
 <body>
 <header>
   <div class="logo">Cash <span>Larp</span></div>
-  <div class="tag">DEMO MODE</div>
-</header>
-
 <main>
   <section id="home" class="section active">
-    <h1>Demo balance</h1>
+    <h1>Your balance</h1>
     <div class="balance" id="balance">$250.00</div>
 
     <div class="actions">
@@ -78,7 +75,7 @@ nav button.active{color:#00df75}
         <h2>Activity</h2>
         <button class="smallbtn" onclick="go('activity')">View all</button>
       </div>
-      <div id="homeActivity" class="empty">Your demo activity will appear here.</div>
+      <div id="homeActivity" class="empty">Your activity will appear here.</div>
     </div>
 
     <div class="notice">Cash Larp is an unofficial simulation. All payments and balances are fictional.</div>
@@ -94,11 +91,11 @@ nav button.active{color:#00df75}
     <input id="payAmount" type="number" min=".01" max="999999999" step=".01" placeholder="25.00">
     <label>Note</label>
     <input id="payNote" maxlength="60" placeholder="For lunch">
-    <button class="primary" onclick="addPayment()">Create demo payment</button>
+    <button class="primary" onclick="addPayment()">Create new payment</button>
   </section>
 
   <section id="request" class="section">
-    <h2>Demo request</h2>
+    <h2>Cash request</h2>
     <p class="muted">This pretend request will not contact anyone.</p>
     <label>Display name</label>
     <input id="requestName" maxlength="30" placeholder="Example: Jordan">
@@ -108,26 +105,23 @@ nav button.active{color:#00df75}
   </section>
 
   <section id="cards" class="section">
-    <h2>My demo card</h2>
+    <h2>My Cash App card</h2>
     <p class="muted">Customize a fictional card. Never enter real card details.</p>
 
     <div class="card" style="margin:20px 0">
       <div class="cardtop">
-        <div class="cardname">Cash Larp</div>
-        <div class="muted">DEMO CARD</div>
+        <div class="cardname">Cash App</div>
+        <div class="muted">CARD</div>
       </div>
-      <div class="cardnumber" id="cardNumber">•••• •••• •••• 1234</div>
+      <div class="cardnumber" id="cardNumber">•••• •••• •••• 5743</div>
       <div class="cardbottom">
-        <div><div class="muted">CARDHOLDER</div><strong id="cardHolder">DEMO USER</strong></div>
-        <div class="muted">NOT REAL</div>
-      </div>
-    </div>
-
-    <label>Cardholder display name</label>
-    <input id="holderInput" maxlength="30" placeholder="Demo User">
+        <div><div class="muted">CARDHOLDER</div><strong id="cardHolder">CASH APP USER</strong></div>
+       </div>
+ <label>Cardholder display name</label>
+    <input id="holderInput" maxlength="30" placeholder="User">
     <label>Fictional last four digits</label>
     <input id="digitsInput" inputmode="numeric" maxlength="4" placeholder="1234">
-    <button class="primary" onclick="saveCard()">Save demo card</button>
+    <button class="primary" onclick="saveCard()">Save your card</button>
   </section>
 
   <section id="activity" class="section">
@@ -135,17 +129,17 @@ nav button.active{color:#00df75}
       <h2>Activity</h2>
       <button class="smallbtn" onclick="clearActivity()">Clear</button>
     </div>
-    <div id="allActivity" class="empty">No demo transactions yet.</div>
+    <div id="allActivity" class="empty">No cash transactions yet.</div>
   </section>
 
   <section id="settings" class="section">
     <h2>Settings</h2>
     <p class="muted">Edit your simulated balance.</p>
-    <label>New demo balance ($)</label>
+    <label>New cash balance ($)</label>
     <input id="newBalance" type="number" min="0" max="999999999" step=".01" value="250">
     <button class="primary" onclick="changeBalance()">Update balance</button>
     <div style="height:15px"></div>
-    <button class="secondary" onclick="resetDemo()">Reset demo</button>
+    <button class="secondary" onclick="resetmoney()">Reset money</button>
     <div style="height:25px"></div>
     <button class="secondary" onclick="toggleEditMode()">Toggle edit mode</button>
     <p class="muted">Edit mode lets you customize visible text and colors. Some edited text may reset when activity refreshes.</p>
@@ -191,7 +185,7 @@ function renderBalance() {
 
 function notify(message) {
   const toast = document.getElementById("toast");
-  toast.textContent = "DEMO · " + message;
+  toast.textContent = "CASH APP · " + message;
   toast.hidden = false;
   clearTimeout(notify.timer);
   notify.timer = setTimeout(() => toast.hidden = true, 3500);
@@ -201,7 +195,7 @@ function addPayment() {
   const name = document.getElementById("payName").value.trim();
   const field = document.getElementById("payAmount");
   const amount = Number(field.value);
-  const note = document.getElementById("payNote").value.trim() || "Demo payment";
+  const note = document.getElementById("payNote").value.trim() || "Cash payment";
 
   if (!name || !field.value || !Number.isFinite(amount) || amount <= 0 || amount > 999999999) {
     notify("Enter a name and a valid amount.");
@@ -240,7 +234,7 @@ function makeRequest() {
     name,
     amount:0,
     requested:Math.round(amount * 100) / 100,
-    note:"Demo request · Not sent",
+    note:"Cash request · Not sent",
     time:new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})
   });
 
@@ -256,7 +250,7 @@ function renderActivity() {
 
     if (!transactions.length) {
       container.className = "empty";
-      container.textContent = "No demo transactions yet.";
+      container.textContent = "No cash transactions yet.";
       continue;
     }
 
